@@ -77,7 +77,7 @@ void manageClient(WiFiClient client){
     while (client.connected()) {            // loop while the client's connected
       if (client.available()) {             // if there's bytes to read from the client,
         char c = client.read();             // read a byte, then
-        Serial.write(c);                    // print it out the serial monitor
+        tft.write(c);                    // print it out the serial monitor
         header += c;
         if (c == '\n') {                    // if the byte is a newline character
           // if the current line is blank, you got two newline characters in a row.
@@ -226,9 +226,19 @@ void manageClient(WiFiClient client){
             client.println("var selectHour = document.getElementById(\"hour\");");
             client.println("var selectMinute = document.getElementById(\"minute\");");
             client.println("var alarmTime;");
-            client.println("button.onclick = function(){alarmTime = selectHour.value + ':' + selectMinute.value;alert(alarmTime);};");
+            //String localIp = WiFi.localIP();
+            client.println("button.onclick = function(){alarmTime = selectHour.value + ':' + selectMinute.value;alert(alarmTime);");
+            client.println("var url = '/' +alarmTime; window.location.replace(url);};");
             //timeOfAlarm = client.read("alarmTime");
+            timeOfAlarm = client.read();             // read a byte, then
+            //tft.write(timeOfAlarm);
+            delay(1000);  
 
+
+            //client.println("if(document.URL.includes('/')){");
+            //client.println("var url = document.URL + 'XD';");
+            //client.println("window.location.replace(url);}");
+            
             client.println("</script>");
             
             
@@ -280,13 +290,13 @@ void loop() {
  
  
    if(WiFi.status() == WL_CONNECTED) {
-    tft.println(WiFi.localIP());
+   tft.println(WiFi.localIP());
     tft.println("Connected");
      tft.print("DATE: ");
-      tft.println(dayStamp);
-       tft.print("HOUR: ");
-      tft.println(timeStamp);
-      tft.println(timeOfAlarm);
+     tft.println(dayStamp);
+      tft.print("HOUR: ");
+     tft.println(timeStamp);
+     tft.println(timeOfAlarm);
    }
    else{
      tft.println("NOT Connected");
