@@ -83,7 +83,7 @@ void loop()
     if (customKey != NO_KEY){
       if(customKey == '#'){
          client.connect(host, port);
-          client.println(code);
+          client.println("CODE"+code);
           client.stop();
           Serial.println("Info has been sent");  
         }
