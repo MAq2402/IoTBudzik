@@ -12,12 +12,13 @@ NTPClient timeClient(ntpUDP);
 const char* ssid     = "TP-LINK_232B";
 const char* password = "12345678";
 
-String header;
+String message;
 String formattedDate;
 String dayStamp;
 String timeStamp;
 String timeWithoutSeconds;
 String timeOfAlarm = "Nie ustawiono";
+String kod = "4444";
 
 WiFiServer server(80);
 
@@ -182,6 +183,22 @@ String setHTML() {
     < / script >";*/
     return temp;
   }
+  void tryToTurnOffTheAlarm(String code){
+    Serial.println("ENTERED tryToTurnOffTheAlarm");
+    }
+ void resolveMessage(){
+    if(message.substring(0,4) == "CODE"){
+      String code  = message.substring(4,message.length());
+      tryToTurnOffTheAlarm(code);
+      }
+      else
+      {
+        String tmp  = message.substring(5,10);
+        if(isdigit(tmp[0])){
+          timeOfAlarm = tmp;
+          } 
+       }
+    }
   void loop() {
     WiFiClient client = server.available();   // listen for incoming clients
 
@@ -191,7 +208,7 @@ String setHTML() {
       while (client.connected()) {            // loop while the client's connected
         if (client.available()) {             // if there's bytes to read from the client,
           char c = client.read();
-          header += c ;// read a byte, then
+          message += c ;// read a byte, then
           //Serial.write(c);                    // print it out the serial monitor
           if (c == '\n') {                    // if the byte is a newline character
 
@@ -231,9 +248,12 @@ String setHTML() {
           }
         }
       }
-      tft.println(header);
-      Serial.println(header);
-      header = "";
+      //tft.println(header);
+      Serial.println(message);
+
+      resolveMessage();
+      message = "";
+      
       // close the connection:
       client.stop();
       Serial.println("Client Disconnected.");
