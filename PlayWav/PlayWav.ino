@@ -1,4 +1,4 @@
-// Playing a digital WAV recording repeatadly using the XTronical DAC Audio library
+ // Playing a digital WAV recording repeatadly using the XTronical DAC Audio library
 // prints out to the serial monitor numbers counting up showing that the sound plays 
 // independently of the main loop
 // See www.xtronical.com for write ups on sound
