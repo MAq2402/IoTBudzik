@@ -64,44 +64,49 @@ void loop()
 
 
 
-    Serial.print("connecting to ");
-    Serial.println(host);
+    //Serial.print("connecting to ");
+    //Serial.println(host);
 
     // Use WiFiClient class to create TCP connections
     WiFiClient client;
 
-    if (!client.connect(host, port)) {
+    /*if (!client.connect(host, port)) {
         Serial.println("connection failed");
         Serial.println("wait 5 sec...");
         delay(5000);
         return;
-    }
+    }*/
 
     char customKey = customKeypad.getKey();
     
   
     if (customKey != NO_KEY){
       if(customKey == '#'){
+         client.connect(host, port);
           client.println(code);
+          client.stop();
+          Serial.println("Info has been sent");  
         }
         else{
           code += customKey;
           }
-      Serial.println(customKey);
-      Serial.println("Current code: " + code);
-      
+      Serial.println(customKey);      
     }
+
+
+
+    Serial.println("Current code: " + code);
     // This will send the request to the server
     //client.print("Send this data to server");
     
     //read back one line from server
-    String line = client.readStringUntil('\r');
-    Serial.println("Current code: " + code);
-    client.println(line);
+    //String line = client.readStringUntil('\r');
+    //Serial.println("Current code: " + code);
+    //client.println(line);
 
-    Serial.println("closing connection");
-    client.stop();
+    //Serial.println("closing connection");
+    //client.stop();
 
-    Serial.println("wait 5 sec...");
+    //Serial.println("wait 5 sec...");
     //delay(5000);
 }
