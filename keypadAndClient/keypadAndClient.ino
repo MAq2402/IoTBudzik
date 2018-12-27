@@ -60,7 +60,7 @@ String code = "";
 void loop()
 {
     const uint16_t port = 80;
-    const char * host = "192.168.0.101"; // ip or dns
+    const char * host = "192.168.0.100"; // ip or dns
 
 
 
@@ -83,7 +83,7 @@ void loop()
     if (customKey != NO_KEY){
       if(customKey == '#'){
          client.connect(host, port);
-          client.println(code);
+          client.println("CODE"+code);
           client.stop();
           Serial.println("Info has been sent");  
         }
