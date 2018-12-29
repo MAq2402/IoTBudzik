@@ -60,7 +60,7 @@ String code = "";
 void loop()
 {
     const uint16_t port = 80;
-    const char * host = "192.168.0.100"; // ip or dns
+    const char * host = "192.168.0.101"; // ip or dns
 
 
 
