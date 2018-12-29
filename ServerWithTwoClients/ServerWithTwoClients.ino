@@ -5,6 +5,15 @@
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 
+#include "SoundData.h";
+#include "XT_DAC_Audio.h";
+
+XT_Wav_Class ForceWithYou(Force);     // create an object of type XT_Wav_Class that is used by 
+                                      // the dac audio class (below), passing wav data as parameter.
+                                      
+XT_DAC_Audio_Class DacAudio(25,0);    // Create the main player class object. 
+                                      // Use GPIO 25, one of the 2 DAC pins and timer 0
+
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
@@ -12,12 +21,15 @@ NTPClient timeClient(ntpUDP);
 const char* ssid     = "TP-LINK_232B";
 const char* password = "12345678";
 
-String header;
+String message;
 String formattedDate;
 String dayStamp;
 String timeStamp;
 String timeWithoutSeconds;
 String timeOfAlarm = "Nie ustawiono";
+String kod = "4444";
+
+bool hasBeenTurnedOff = true;
 
 WiFiServer server(80);
 
@@ -67,6 +79,7 @@ void setup()
 
   server.begin();
 
+ 
 }
 
 String setHTML() {
@@ -182,7 +195,42 @@ String setHTML() {
     < / script >";*/
     return temp;
   }
+  void tryToTurnOffTheAlarm(String code){
+    
+    DacAudio.StopAllSounds();
+    hasBeenTurnedOff = true;
+    }
+ void resolveMessage(){
+    if(message.substring(0,4) == "CODE"){
+      String code  = message.substring(4,message.length());
+      tryToTurnOffTheAlarm(code);
+      }
+      else
+      {
+        String tmp  = message.substring(5,10);
+        if(isdigit(tmp[0])){
+          timeOfAlarm = tmp;
+          } 
+       }
+    }
+
+   void turnOnAlarm(){
+    if(hasBeenTurnedOff){
+      hasBeenTurnedOff = false;
+      }
+    //ForceWithYou.RepeatForever=true;        // Keep on playing sample forever!!!
+    DacAudio.FillBuffer();
+    DacAudio.Play(&ForceWithYou);  
+
+  }
   void loop() {
+
+
+    
+    
+    // if completed playing, play again
+     // play the wav (pass the wav class object created at top of code
+
     WiFiClient client = server.available();   // listen for incoming clients
 
     if (client) {                             // if you get a client,
@@ -191,7 +239,7 @@ String setHTML() {
       while (client.connected()) {            // loop while the client's connected
         if (client.available()) {             // if there's bytes to read from the client,
           char c = client.read();
-          header += c ;// read a byte, then
+          message += c ;// read a byte, then
           //Serial.write(c);                    // print it out the serial monitor
           if (c == '\n') {                    // if the byte is a newline character
 
@@ -231,9 +279,12 @@ String setHTML() {
           }
         }
       }
-      tft.println(header);
-      Serial.println(header);
-      header = "";
+      //tft.println(header);
+      Serial.println(message);
+
+      resolveMessage();
+      message = "";
+      
       // close the connection:
       client.stop();
       Serial.println("Client Disconnected.");
@@ -259,6 +310,11 @@ String setHTML() {
 
     timeWithoutSeconds = formattedDate.substring(indexOfT + 1, formattedDate.length() - 4);
 
+    if(timeStamp.substring(0,7) == timeOfAlarm + ":0" || !hasBeenTurnedOff){
+
+           turnOnAlarm();
+      }
+
 
     if (WiFi.status() == WL_CONNECTED) {
       tft.println(WiFi.localIP());
@@ -268,11 +324,15 @@ String setHTML() {
       tft.print("HOUR: ");
       tft.println(timeStamp);
       tft.println(timeOfAlarm);
+      if(!hasBeenTurnedOff){
+      tft.println("BUDZ SIE");
+      }
+      
     }
     else {
       tft.println("NOT Connected");
     }
-
+   
 
     //1sec delay
     delay(1000);
